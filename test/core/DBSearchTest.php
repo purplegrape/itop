@@ -617,7 +617,7 @@ class DBSearchTest extends ItopDataTestCase
 			$sExceptionClass = get_class($e);
 		}
 
-		static::assertEquals('OQLParserException', $sExceptionClass);
+		static::assertEquals('OQLParserSyntaxErrorException', $sExceptionClass);
 	}
 
 	public function testSanity_GroupFunction_In_GroupByPart()
@@ -633,7 +633,7 @@ class DBSearchTest extends ItopDataTestCase
 			$sExceptionClass = get_class($e);
 		}
 
-		static::assertEquals('OQLParserException', $sExceptionClass);
+		static::assertEquals('OQLParserSyntaxErrorException', $sExceptionClass);
 	}
 
 	public function testSanity_UnknownGroupFunction_In_SelectPart()
@@ -719,5 +719,20 @@ class DBSearchTest extends ItopDataTestCase
 		self::assertNotNull($oNestedSearchInExpression, 'We must have a DBSearch inside a NestedQueryExpression inside the root DBSearch');
 		/** @var \DBObjectSearch $oNestedSearchInExpression */
 		self::assertEquals($bAllowAllData, $oNestedSearchInExpression->IsAllDataAllowed(), 'Nested DBSearch AllowData value');
+	}
+
+	/**
+	 * BUG N°4031 check AttributeObjectKey used in JOIN condition
+	 * @throws \ConfigException
+	 * @throws \CoreException
+	 * @throws \MissingQueryArgument
+	 * @throws \OQLException
+	 */
+	public function testAttributeObjectKey()
+	{
+		$sQuery = "SELECT II FROM InlineImage AS II JOIN UserRequest AS UR ON II.item_id = UR.id WHERE II.item_class = 'UserRequest'";
+		$oSearch = \DBObjectSearch::FromOQL($sQuery);
+		$oSearch->MakeSelectQuery();
+		self::assertTrue(true);
 	}
 }
